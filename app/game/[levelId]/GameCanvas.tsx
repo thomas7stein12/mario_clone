@@ -6,8 +6,12 @@ import type { LevelDefinition } from "../level-data";
 import { getLevelById } from "../level-data";
 
 type GameStatus = "loading" | "playing" | "paused" | "won" | "lost" | "error";
-type DirectionKeys = { left: { pressed: boolean }; right: { pressed: boolean } };
+type DirectionKeys = {
+  left: { pressed: boolean };
+  right: { pressed: boolean };
+};
 type GameImages = {
+  decorative: HTMLImageElement;
   platform: HTMLImageElement;
   background: HTMLImageElement;
   hills: HTMLImageElement;
@@ -29,8 +33,13 @@ type GameObject = {
 
 const CANVAS_WIDTH = 1024;
 const CANVAS_HEIGHT = 576;
+
+const DECORATIVE_BLOCK_WIDTH = 291;
+const DECORATIVE_BLOCK_HEIGHT = 291;
+
 const GRAVITY = 1.5;
 const ASSET_PATHS = {
+  decorative: "/decorative.png",
   platform: "/platform.png",
   background: "/background.png",
   hills: "/hills.png",
@@ -51,7 +60,12 @@ function loadImages(): Promise<GameImages> {
         new Promise<[keyof GameImages, HTMLImageElement]>((resolve, reject) => {
           const image = new Image();
           image.onload = () => resolve([key, image]);
-          image.onerror = () => reject(new Error(`Couldn't load ${src}. Check that the file exists in public/.`));
+          image.onerror = () =>
+            reject(
+              new Error(
+                `Couldn't load ${src}. Check that the file exists in public/.`,
+              ),
+            );
           image.src = src;
         }),
     ),
@@ -70,7 +84,11 @@ class Player {
   lastFrameTime = 0;
   currentDirection = "stationary";
 
-  draw(context: CanvasRenderingContext2D, images: GameImages, keys: DirectionKeys) {
+  draw(
+    context: CanvasRenderingContext2D,
+    images: GameImages,
+    keys: DirectionKeys,
+  ) {
     const now = performance.now();
     let image = images.marioStationary;
     let frames: HTMLImageElement[] | undefined;
@@ -100,10 +118,20 @@ class Player {
       this.lastFrameTime = now;
     }
 
-    context.drawImage(image, this.position.x, this.position.y, this.width, this.height);
+    context.drawImage(
+      image,
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height,
+    );
   }
 
-  update(context: CanvasRenderingContext2D, images: GameImages, keys: DirectionKeys) {
+  update(
+    context: CanvasRenderingContext2D,
+    images: GameImages,
+    keys: DirectionKeys,
+  ) {
     this.draw(context, images, keys);
     this.position.y += this.velocity.y;
     this.position.x += this.velocity.x;
@@ -129,7 +157,13 @@ class Platform implements GameObject {
   }
 
   draw(context: CanvasRenderingContext2D) {
-    context.drawImage(this.image, this.position.x, this.position.y);
+    context.drawImage(
+      this.image,
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height,
+    );
   }
 }
 
@@ -139,25 +173,38 @@ class GenericObject implements GameObject {
   width: number;
   height: number;
 
-  constructor(x: number, y: number, image: HTMLImageElement) {
+  constructor(
+    x: number,
+    y: number,
+    image: HTMLImageElement,
+    width = image.naturalWidth,
+    height = image.naturalHeight,
+  ) {
     this.position = { x, y };
     this.image = image;
-    this.width = image.naturalWidth;
-    this.height = image.naturalHeight;
+    this.width = width;
+    this.height = height;
   }
 
   draw(context: CanvasRenderingContext2D) {
-    context.drawImage(this.image, this.position.x, this.position.y);
+    context.drawImage(
+      this.image,
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height,
+    );
   }
 }
 
 function createPlatforms(level: LevelDefinition, images: GameImages) {
-  return level.platforms.map((definition) =>
-    new Platform(
-      definition.x,
-      definition.y,
-      definition.type === "ground" ? images.platform : images.platformSmall,
-    ),
+  return level.platforms.map(
+    (definition) =>
+      new Platform(
+        definition.x,
+        definition.y,
+        definition.type === "ground" ? images.platform : images.platformSmall,
+      ),
   );
 }
 
@@ -169,7 +216,10 @@ export default function GameCanvas({
   levelTitle: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const keysRef = useRef<DirectionKeys>({ left: { pressed: false }, right: { pressed: false } });
+  const keysRef = useRef<DirectionKeys>({
+    left: { pressed: false },
+    right: { pressed: false },
+  });
   const gameActionsRef = useRef<{
     togglePause: () => void;
     restart: () => void;
@@ -211,16 +261,28 @@ export default function GameCanvas({
 
     const resetGame = () => {
       if (!images) return;
+
+      const decorativeImage = images.decorative;
+
       player = new Player();
       platforms = createPlatforms(level, images);
+
       genericObjects = [
         new GenericObject(-100, -1, images.background),
         new GenericObject(-100, -1, images.hills),
       ];
-      decorativeObjects = [
-        new GenericObject(3350, 151, images.platformSmall),
-        new GenericObject(500, 375, images.platformSmall),
-      ];
+
+      decorativeObjects = (level.decorativeBlocks ?? []).map(
+        ({ x, y }) =>
+          new GenericObject(
+            x,
+            y,
+            decorativeImage,
+            DECORATIVE_BLOCK_WIDTH,
+            DECORATIVE_BLOCK_HEIGHT,
+          ),
+      );
+
       scrollOffset = 0;
       changeStatus("playing");
     };
@@ -245,18 +307,31 @@ export default function GameCanvas({
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      const isGameKey = ["ArrowLeft", "ArrowRight", "ArrowUp", "Space", "KeyA", "KeyD", "KeyW"].includes(event.code);
+      const isGameKey = [
+        "ArrowLeft",
+        "ArrowRight",
+        "ArrowUp",
+        "Space",
+        "KeyA",
+        "KeyD",
+        "KeyW",
+      ].includes(event.code);
       if (isGameKey && currentStatus === "playing") event.preventDefault();
       if (currentStatus !== "playing") return;
 
-      if (event.code === "ArrowLeft" || event.code === "KeyA") keys.left.pressed = true;
-      if (event.code === "ArrowRight" || event.code === "KeyD") keys.right.pressed = true;
-      if (!event.repeat && ["ArrowUp", "KeyW", "Space"].includes(event.code)) jump();
+      if (event.code === "ArrowLeft" || event.code === "KeyA")
+        keys.left.pressed = true;
+      if (event.code === "ArrowRight" || event.code === "KeyD")
+        keys.right.pressed = true;
+      if (!event.repeat && ["ArrowUp", "KeyW", "Space"].includes(event.code))
+        jump();
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.code === "ArrowLeft" || event.code === "KeyA") keys.left.pressed = false;
-      if (event.code === "ArrowRight" || event.code === "KeyD") keys.right.pressed = false;
+      if (event.code === "ArrowLeft" || event.code === "KeyA")
+        keys.left.pressed = false;
+      if (event.code === "ArrowRight" || event.code === "KeyD")
+        keys.right.pressed = false;
     };
 
     const handleBlur = () => {
@@ -293,15 +368,27 @@ export default function GameCanvas({
 
           if (keys.right.pressed) {
             scrollOffset += player.speed;
-            platforms.forEach((platform) => (platform.position.x -= player.speed));
-            genericObjects.forEach((object) => (object.position.x -= player.speed * 0.43));
-            decorativeObjects.forEach((object) => (object.position.x -= player.speed));
+            platforms.forEach(
+              (platform) => (platform.position.x -= player.speed),
+            );
+            genericObjects.forEach(
+              (object) => (object.position.x -= player.speed * 0.43),
+            );
+            decorativeObjects.forEach(
+              (object) => (object.position.x -= player.speed),
+            );
           } else if (keys.left.pressed && scrollOffset > 0) {
             const scrollAmount = Math.min(player.speed, scrollOffset);
             scrollOffset -= scrollAmount;
-            platforms.forEach((platform) => (platform.position.x += scrollAmount));
-            genericObjects.forEach((object) => (object.position.x += scrollAmount * 0.43));
-            decorativeObjects.forEach((object) => (object.position.x += scrollAmount));
+            platforms.forEach(
+              (platform) => (platform.position.x += scrollAmount),
+            );
+            genericObjects.forEach(
+              (object) => (object.position.x += scrollAmount * 0.43),
+            );
+            decorativeObjects.forEach(
+              (object) => (object.position.x += scrollAmount),
+            );
           }
         }
 
@@ -309,12 +396,17 @@ export default function GameCanvas({
         platforms.forEach((platform) => {
           const currentPlayerBottom = player.position.y + player.height;
           const crossedPlatform =
-            previousPlayerBottom <= platform.position.y && currentPlayerBottom >= platform.position.y;
+            previousPlayerBottom <= platform.position.y &&
+            currentPlayerBottom >= platform.position.y;
           const overlapsHorizontally =
             player.position.x + player.width >= platform.position.x &&
             player.position.x <= platform.position.x + platform.width;
 
-          if (player.velocity.y >= 0 && crossedPlatform && overlapsHorizontally) {
+          if (
+            player.velocity.y >= 0 &&
+            crossedPlatform &&
+            overlapsHorizontally
+          ) {
             player.position.y = platform.position.y - player.height;
             player.velocity.y = 0;
             player.canJump = true;
@@ -342,7 +434,11 @@ export default function GameCanvas({
       })
       .catch((error: unknown) => {
         if (disposed) return;
-        setErrorMessage(error instanceof Error ? error.message : "There was a problem loading the game images.");
+        setErrorMessage(
+          error instanceof Error
+            ? error.message
+            : "There was a problem loading the game images.",
+        );
         changeStatus("error");
       });
 
@@ -358,21 +454,38 @@ export default function GameCanvas({
     };
   }, [levelId]);
 
-  const showOverlay = status === "paused" || status === "won" || status === "lost" || status === "loading" || status === "error";
+  const showOverlay =
+    status === "paused" ||
+    status === "won" ||
+    status === "lost" ||
+    status === "loading" ||
+    status === "error";
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#72d7fa] via-[#b7edff] to-[#fff0c6] px-3 py-5 font-mono text-[#17243d] sm:px-6 sm:py-8">
       <div className="mx-auto max-w-6xl">
         <header className="mb-6 flex flex-wrap items-center justify-between gap-4 border-4 border-[#17243d] bg-[#fff3cb] p-4 shadow-[6px_6px_0_#17243d]">
           <div>
-            <Link href="/levels" className="text-sm font-semibold text-slate-400 transition hover:text-white">← All levels</Link>
-            <h1 className="mt-2 text-2xl font-black uppercase tracking-tight text-[#17243d] sm:text-3xl">{levelTitle}</h1>
+            <Link
+              href="/levels"
+              className="text-sm font-semibold text-slate-400 transition hover:text-white"
+            >
+              ← All levels
+            </Link>
+            <h1 className="mt-2 text-2xl font-black uppercase tracking-tight text-[#17243d] sm:text-3xl">
+              {levelTitle}
+            </h1>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => gameActionsRef.current?.togglePause()}
-              disabled={status === "loading" || status === "error" || status === "won" || status === "lost"}
+              disabled={
+                status === "loading" ||
+                status === "error" ||
+                status === "won" ||
+                status === "lost"
+              }
               className="border-4 border-[#17243d] bg-white px-4 py-2.5 text-sm font-black text-[#17243d] shadow-[4px_4px_0_#17243d] transition hover:bg-[#ffe36c] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {status === "paused" ? "Resume" : "Pause"}
@@ -399,43 +512,94 @@ export default function GameCanvas({
 
           {showOverlay && (
             <div className="absolute inset-0 grid place-items-center bg-[#07101e]/75 p-5 backdrop-blur-sm">
-              <div className="w-full max-w-md border-4 border-[#ffe36c] bg-[#14213d]/[.97] p-7 text-center shadow-[8px_8px_0_rgba(0,0,0,0.4)] sm:p-9">
+              <div className="w-full max-w-md border-4 border-[#ffe36c] bg-[#14213d]/[.97] p-7 text-center text-white shadow-[8px_8px_0_rgba(0,0,0,0.4)] sm:p-9">
                 {status === "loading" ? (
                   <>
-                    <p className="text-xs font-black uppercase tracking-[0.25em] text-sky-300">Preparing the course</p>
+                    <p className="text-xs font-black uppercase tracking-[0.25em] text-sky-300">
+                      Preparing the course
+                    </p>
                     <h2 className="mt-3 text-3xl font-black">Loading game…</h2>
-                    <p className="mt-3 text-sm leading-6 text-slate-400">Getting your sprites and platforms ready.</p>
+                    <p className="mt-3 text-sm leading-6 text-slate-400">
+                      Getting your sprites and platforms ready.
+                    </p>
                   </>
                 ) : status === "error" ? (
                   <>
-                    <p className="text-xs font-black uppercase tracking-[0.25em] text-red-300">Something went wrong</p>
-                    <h2 className="mt-3 text-3xl font-black">Could not start</h2>
-                    <p className="mt-3 break-words text-sm leading-6 text-slate-300">{errorMessage}</p>
-                    <p className="mt-3 text-xs leading-5 text-slate-500">Make sure the nine image files are directly inside your public folder, with the same spelling and capitalization.</p>
+                    <p className="text-xs font-black uppercase tracking-[0.25em] text-red-300">
+                      Something went wrong
+                    </p>
+                    <h2 className="mt-3 text-3xl font-black">
+                      Could not start
+                    </h2>
+                    <p className="mt-3 break-words text-sm leading-6 text-slate-300">
+                      {errorMessage}
+                    </p>
+                    <p className="mt-3 text-xs leading-5 text-slate-500">
+                      Make sure the nine image files are directly inside your
+                      public folder, with the same spelling and capitalization.
+                    </p>
                   </>
                 ) : status === "paused" ? (
                   <>
-                    <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-200">Take a breather</p>
+                    <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-200">
+                      Take a breather
+                    </p>
                     <h2 className="mt-3 text-3xl font-black">Game paused</h2>
-                    <p className="mt-3 text-sm leading-6 text-slate-400">Your progress in this run is saved. Jump back in when you’re ready.</p>
-                    <button type="button" onClick={() => gameActionsRef.current?.togglePause()} className="mt-6 rounded-xl bg-red-500 px-6 py-3 font-bold transition hover:bg-red-400">Resume game</button>
+                    <p className="mt-3 text-sm leading-6 text-slate-400">
+                      Your progress in this run is saved. Jump back in when
+                      you’re ready.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => gameActionsRef.current?.togglePause()}
+                      className="mt-6 rounded-xl bg-red-500 px-6 py-3 font-bold transition hover:bg-red-400"
+                    >
+                      Resume game
+                    </button>
                   </>
                 ) : status === "won" ? (
                   <>
-                    <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-300">Course complete</p>
+                    <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-300">
+                      Course complete
+                    </p>
                     <h2 className="mt-3 text-4xl font-black">You win!</h2>
-                    <p className="mt-3 text-sm leading-6 text-slate-300">Nice run through {levelTitle}. Ready to try another course?</p>
+                    <p className="mt-3 text-sm leading-6 text-slate-300">
+                      Nice run through {levelTitle}. Ready to try another
+                      course?
+                    </p>
                     <div className="mt-6 flex flex-wrap justify-center gap-3">
-                      <button type="button" onClick={() => gameActionsRef.current?.restart()} className="rounded-xl bg-red-500 px-5 py-3 font-bold transition hover:bg-red-400">Play again</button>
-                      <Link href="/levels" className="rounded-xl border border-white/15 px-5 py-3 font-bold transition hover:bg-white/10">Choose level</Link>
+                      <button
+                        type="button"
+                        onClick={() => gameActionsRef.current?.restart()}
+                        className="rounded-xl bg-red-500 px-5 py-3 font-bold transition hover:bg-red-400"
+                      >
+                        Play again
+                      </button>
+                      <Link
+                        href="/levels"
+                        className="rounded-xl border border-white/15 px-5 py-3 font-bold transition hover:bg-white/10"
+                      >
+                        Choose level
+                      </Link>
                     </div>
                   </>
                 ) : (
                   <>
-                    <p className="text-xs font-black uppercase tracking-[0.25em] text-red-300">Missed a jump</p>
+                    <p className="text-xs font-black uppercase tracking-[0.25em] text-red-300">
+                      Missed a jump
+                    </p>
                     <h2 className="mt-3 text-4xl font-black">Try again!</h2>
-                    <p className="mt-3 text-sm leading-6 text-slate-300">Mario fell off the course. Restart this level and give it another shot.</p>
-                    <button type="button" onClick={() => gameActionsRef.current?.restart()} className="mt-6 rounded-xl bg-red-500 px-6 py-3 font-bold transition hover:bg-red-400">Restart level</button>
+                    <p className="mt-3 text-sm leading-6 text-slate-300">
+                      Mario fell off the course. Restart this level and give it
+                      another shot.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => gameActionsRef.current?.restart()}
+                      className="mt-6 rounded-xl bg-red-500 px-6 py-3 font-bold transition hover:bg-red-400"
+                    >
+                      Restart level
+                    </button>
                   </>
                 )}
               </div>
@@ -443,8 +607,12 @@ export default function GameCanvas({
           )}
 
           <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-between p-3 text-[10px] font-black uppercase tracking-[0.16em] text-white/65 sm:p-4 sm:text-xs">
-            <span className="rounded-lg bg-black/25 px-2 py-1">Move: A / D or ← / →</span>
-            <span className="rounded-lg bg-black/25 px-2 py-1">Jump: W / ↑ / Space</span>
+            <span className="rounded-lg bg-black/25 px-2 py-1">
+              Move: A / D or ← / →
+            </span>
+            <span className="rounded-lg bg-black/25 px-2 py-1">
+              Jump: W / ↑ / Space
+            </span>
           </div>
         </section>
 
@@ -458,29 +626,58 @@ export default function GameCanvas({
             <button
               type="button"
               aria-label="Move left"
-              onPointerDown={(event) => { event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); keysRef.current.left.pressed = true; }}
-              onPointerUp={() => { keysRef.current.left.pressed = false; }}
-              onPointerCancel={() => { keysRef.current.left.pressed = false; }}
-              onLostPointerCapture={() => { keysRef.current.left.pressed = false; }}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.currentTarget.setPointerCapture(event.pointerId);
+                keysRef.current.left.pressed = true;
+              }}
+              onPointerUp={() => {
+                keysRef.current.left.pressed = false;
+              }}
+              onPointerCancel={() => {
+                keysRef.current.left.pressed = false;
+              }}
+              onLostPointerCapture={() => {
+                keysRef.current.left.pressed = false;
+              }}
               className="h-14 flex-1 border-4 border-[#17243d] bg-[#fff3cb] text-2xl font-black text-[#17243d] shadow-[4px_4px_0_#17243d] active:translate-y-1 active:shadow-none"
-            >◀</button>
+            >
+              ◀
+            </button>
             <button
               type="button"
               aria-label="Move right"
-              onPointerDown={(event) => { event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); keysRef.current.right.pressed = true; }}
-              onPointerUp={() => { keysRef.current.right.pressed = false; }}
-              onPointerCancel={() => { keysRef.current.right.pressed = false; }}
-              onLostPointerCapture={() => { keysRef.current.right.pressed = false; }}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.currentTarget.setPointerCapture(event.pointerId);
+                keysRef.current.right.pressed = true;
+              }}
+              onPointerUp={() => {
+                keysRef.current.right.pressed = false;
+              }}
+              onPointerCancel={() => {
+                keysRef.current.right.pressed = false;
+              }}
+              onLostPointerCapture={() => {
+                keysRef.current.right.pressed = false;
+              }}
               className="h-14 flex-1 border-4 border-[#17243d] bg-[#fff3cb] text-2xl font-black text-[#17243d] shadow-[4px_4px_0_#17243d] active:translate-y-1 active:shadow-none"
-            >▶</button>
+            >
+              ▶
+            </button>
           </div>
           <div />
           <button
             type="button"
             aria-label="Jump"
-            onPointerDown={(event) => { event.preventDefault(); gameActionsRef.current?.jump(); }}
+            onPointerDown={(event) => {
+              event.preventDefault();
+              gameActionsRef.current?.jump();
+            }}
             className="h-14 border-4 border-[#17243d] bg-[#ed4646] text-2xl font-black text-white shadow-[4px_4px_0_#17243d] active:translate-y-1 active:shadow-none"
-          >▲</button>
+          >
+            ▲
+          </button>
         </div>
       </div>
     </main>
