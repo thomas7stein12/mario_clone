@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mario Clone: Next.js integration files
 
-## Getting Started
+These are the files to copy into your existing `mario_clone` Next.js app. They do not replace your `package.json`, TypeScript config, or Tailwind setup.
 
-First, run the development server:
+## 1. Copy the files
+
+Copy this folder's `app` directory into the root of your project, merging with the existing `app` directory and replacing `app/layout.tsx` and `app/page.tsx` when prompted.
+
+Files included:
+
+- `app/layout.tsx` — site metadata and root layout
+- `app/page.tsx` — landing page
+- `app/levels/page.tsx` — level picker
+- `app/game/level-data.ts` — all three platform layouts
+- `app/game/[levelId]/page.tsx` — route for a selected level
+- `app/game/[levelId]/GameCanvas.tsx` — canvas game, physics, keyboard/touch controls, pause, restart, win/loss states
+
+## 2. Check the image filenames
+
+The code expects these files directly inside `public/` (not inside `public/imgs/`):
+
+```text
+public/background.png
+public/hills.png
+public/platform.png
+public/platformSmallTall.png
+public/mario-left-1.png
+public/mario-left-2.png
+public/mario-right-1.png
+public/mario-right-2.png
+public/mario-stationary.png
+```
+
+The paths are case-sensitive on many deployment environments. Each filename above must match exactly.
+
+## 3. Run it
+
+From the project folder:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`. The landing page leads to `/levels`, and each level opens at `/game/1`, `/game/2`, or `/game/3`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+No extra npm packages are required. Keep your existing `app/globals.css` and `package.json` as they are.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Adding another level
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Add another object to the `levels` array in `app/game/level-data.ts`. Give it a unique `id`, title, description, `finishAt` distance, and a `platforms` array. Each platform uses `type: "ground"` for `platform.png` or `type: "small"` for `platformSmallTall.png`. The level picker and static game routes are generated from this array.
