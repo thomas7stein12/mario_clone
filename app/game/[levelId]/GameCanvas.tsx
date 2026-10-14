@@ -430,6 +430,9 @@ export default function GameCanvas({
 
           if (keys.right.pressed) {
             scrollOffset += player.speed;
+
+            console.log("Distance:", Math.round(scrollOffset));
+
             platforms.forEach(
               (platform) => (platform.position.x -= player.speed),
             );

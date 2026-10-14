@@ -61,7 +61,7 @@ export const levels: LevelDefinition[] = [
     title: "Mushroom Meadow",
     subtitle: "The original course",
     difficulty: "Hard",
-    description: "Your original platform layout, now inside the level system.",
+    description: "Navigate through various barely possible jumps scattered across rolling hills.",
     finishAt: 30000,
     platforms: [
       // Section 1: The original meadow
@@ -277,9 +277,11 @@ export const levels: LevelDefinition[] = [
     difficulty: "Medium",
     description:
       "Navigate a maze of vertical shafts, awkward reversals, narrow landings, and difficult descents.",
-    finishAt: 7400,
+    finishAt: 24000,
+
+
     platforms: [
-      // Highest platforms: the upper routes and final ledges
+      // Original level: highest platforms
       { type: "small", x: 3800, y: 40 },
       { type: "small", x: 4100, y: 40 },
       { type: "small", x: 6650, y: 60 },
@@ -293,7 +295,7 @@ export const levels: LevelDefinition[] = [
       { type: "small", x: 3950, y: 110 },
       { type: "small", x: 4100, y: 110 },
 
-      // Upper platforms: reversals and difficult crossings
+      // Original level: upper platforms
       { type: "small", x: 6500, y: 150 },
       { type: "small", x: 1300, y: 160 },
       { type: "small", x: 5250, y: 170 },
@@ -304,7 +306,7 @@ export const levels: LevelDefinition[] = [
       { type: "small", x: 3900, y: 200 },
       { type: "small", x: 520, y: 200 },
 
-      // Middle platforms: irregular jumps and sudden changes in height
+      // Original level: middle platforms
       { type: "small", x: 2860, y: 240 },
       { type: "small", x: 5400, y: 240 },
       { type: "small", x: 6670, y: 250 },
@@ -318,7 +320,7 @@ export const levels: LevelDefinition[] = [
       { type: "small", x: 2310, y: 300 },
       { type: "small", x: 320, y: 300 },
 
-      // Lower platforms: drops, awkward landings, and final approaches
+      // Original level: lower platforms
       { type: "small", x: 5300, y: 350 },
       { type: "small", x: 4900, y: 370 },
       { type: "small", x: 820, y: 370 },
@@ -327,16 +329,96 @@ export const levels: LevelDefinition[] = [
       { type: "small", x: 6110, y: 390 },
       { type: "small", x: 2530, y: 390 },
       { type: "small", x: 2130, y: 400 },
+      { type: "small", x: 7600, y: 451 },
 
-      // Ground: separated landing areas, drawn in the foreground
+      // Section 2: Beyond the first stretch
+      // Scattered ledges with uneven spacing and changing heights
+      { type: "small", x: 7890, y: 330 },
+      { type: "small", x: 8210, y: 210 },
+      { type: "small", x: 8470, y: 300 },
+      { type: "small", x: 8860, y: 105 },
+      { type: "small", x: 9160, y: 340 },
+      { type: "small", x: 9470, y: 240 },
+
+      // A broken stretch with a high ledge and a lower recovery route
+      { type: "small", x: 9780, y: 375 },
+      { type: "small", x: 10150, y: 200 },
+      { type: "small", x: 10580, y: 100 },
+      { type: "small", x: 10910, y: 260 },
+      { type: "small", x: 11250, y: 350 },
+      { type: "small", x: 11600, y: 180 },
+
+      // Section 3: The scattered ridge
+      // A few closely grouped ledges mixed with longer crossings
+      { type: "small", x: 11920, y: 300 },
+      { type: "small", x: 12280, y: 550 },
+      { type: "small", x: 12620, y: 235 },
+      { type: "small", x: 12990, y: 80 },
+      { type: "small", x: 12860, y: 180 },
+      { type: "small", x: 13100, y: 370 },
+      { type: "small", x: 13730, y: 180 },
+      { type: "small", x: 14380, y: 275 },
+
+      // A lower route interrupted by isolated higher platforms
+      { type: "small", x: 14700, y: 80 },
+      { type: "small", x: 15030, y: 210 },
+      { type: "small", x: 15360, y: 390 },
+      { type: "small", x: 15720, y: 270 },
+      { type: "small", x: 16080, y: 125 },
+      { type: "small", x: 16400, y: 330 },
+
+      // Section 4: The broken crossing
+      // Irregular clusters rather than a continuous staircase
+      { type: "small", x: 16750, y: 215 },
+      { type: "small", x: 17110, y: 105 },
+      { type: "small", x: 17790, y: 265 },
+      { type: "small", x: 18150, y: 350 },
+      { type: "small", x: 18500, y: 180 },
+      { type: "small", x: 18830, y: 300 },
+      { type: "small", x: 19180, y: 130 },
+
+      // Uneven ledges leading into the final stretch
+      { type: "small", x: 19500, y: 230 },
+      { type: "small", x: 19850, y: 380 },
+      { type: "small", x: 20210, y: 290 },
+      { type: "small", x: 20550, y: 145 },
+      { type: "small", x: 20900, y: 340 },
+
+      // Section 5: Final stretch
+      // A mix of low platforms, sudden climbs, and awkward landings
+      { type: "small", x: 21230, y: 200 },
+      { type: "small", x: 21580, y: 90 },
+      { type: "small", x: 22100, y: 280 },
+      { type: "small", x: 22600, y: 160 },
+      { type: "small", x: 22950, y: 260 },
+      { type: "small", x: 23300, y: 95 },
+      { type: "small", x: 23650, y: 315 },
+      { type: "small", x: 23920, y: 390 },
+
+      // Ground: original landing areas
       { type: "ground", x: -1, y: 451 },
       { type: "ground", x: 1500, y: 451 },
       { type: "ground", x: 2900, y: 451 },
       { type: "ground", x: 4250, y: 451 },
       { type: "ground", x: 5500, y: 451 },
       { type: "ground", x: 6800, y: 451 },
-      { type: "small", x: 7600, y: 451 },
+
+      // New recovery areas, spaced unevenly throughout the course
+      { type: "ground", x: 8150, y: 451 },
+      { type: "ground", x: 9570, y: 451 },
+      { type: "ground", x: 11090, y: 451 },
+      { type: "ground", x: 12750, y: 451 },
+      { type: "ground", x: 14150, y: 451 },
+      { type: "ground", x: 16050, y: 451 },
+      { type: "ground", x: 17500, y: 451 },
+      { type: "ground", x: 19350, y: 451 },
+      { type: "ground", x: 20800, y: 451 },
+      { type: "ground", x: 22650, y: 451 },
+
+      // Finish area
+      { type: "ground", x: 24178, y: 451 },
     ],
+
   }),
 ];
 
