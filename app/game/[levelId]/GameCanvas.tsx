@@ -529,9 +529,9 @@ export default function GameCanvas({
     status === "error";
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#72d7fa] via-[#b7edff] to-[#fff0c6] px-3 py-5 font-mono text-[#17243d] sm:px-6 sm:py-8">
+    <main className="game-page min-h-screen bg-gradient-to-b from-[#72d7fa] via-[#b7edff] to-[#fff0c6] px-3 py-5 font-mono text-[#17243d] sm:px-6 sm:py-8">
       <div className="mx-auto max-w-6xl">
-        <header className="mb-6 flex flex-wrap items-center justify-between gap-4 border-4 border-[#17243d] bg-[#fff3cb] p-4 shadow-[6px_6px_0_#17243d]">
+        <header className="game-header mb-6 flex flex-wrap items-center justify-between gap-4 border-4 border-[#17243d] bg-[#fff3cb] p-4 shadow-[6px_6px_0_#17243d]">
           <div>
             <Link
               href="/levels"
@@ -568,7 +568,7 @@ export default function GameCanvas({
           </div>
         </header>
 
-        <section className="relative overflow-hidden border-[6px] border-[#17243d] bg-[#65c9f4] shadow-[8px_8px_0_#17243d]">
+        <section className="game-screen relative mx-auto w-full max-w-[1024px] overflow-hidden border-[6px] border-[#17243d] bg-[#65c9f4] shadow-[8px_8px_0_#17243d]">
           <canvas
             ref={canvasRef}
             width={CANVAS_WIDTH}
@@ -683,12 +683,12 @@ export default function GameCanvas({
           </div>
         </section>
 
-        <div className="mt-3 flex items-center justify-between gap-3 text-xs text-slate-500 sm:text-sm">
+        <div className="game-tip mt-3 flex items-center justify-between gap-3 text-xs text-slate-500 sm:text-sm">
           <span>Tip: hold a direction to run, then jump before a gap.</span>
           <span className="hidden sm:inline">Level {levelId} / 3</span>
         </div>
 
-        <div className="mt-4 grid grid-cols-3 gap-3 md:hidden">
+        <div className="game-touch-controls mt-4 grid grid-cols-3 gap-3">
           <div className="flex gap-2">
             <button
               type="button"
