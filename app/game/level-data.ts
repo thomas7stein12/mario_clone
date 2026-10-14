@@ -55,15 +55,16 @@ function createLevel(level: LevelDefinition): LevelDefinition {
 }
 
 export const levels: LevelDefinition[] = [
+
   createLevel({
     id: "1",
     title: "Mushroom Meadow",
     subtitle: "The original course",
-    difficulty: "Easy",
+    difficulty: "Hard",
     description: "Your original platform layout, now inside the level system.",
-    finishAt: 15000,
+    finishAt: 30000,
     platforms: [
-      // Section 1
+      // Section 1: The original meadow
       { type: "small", x: 350, y: 275 },
       { type: "small", x: 639, y: 80 },
       { type: "small", x: 639, y: 275 },
@@ -83,7 +84,7 @@ export const levels: LevelDefinition[] = [
       { type: "ground", x: 5378, y: 451 },
 
       // Section 2: The edge of the meadow
-      // Ordered from back to front for better visual layering.
+      // Ordered from back to front for visual layering.
 
       // Highest platforms: background layer
       { type: "small", x: 7178, y: 51 },
@@ -139,6 +140,63 @@ export const levels: LevelDefinition[] = [
       { type: "small", x: 14578, y: 551 },
 
       { type: "ground", x: 15178, y: 451 },
+
+      // Section 3: Beyond the meadow
+      // A challenging route with deliberate elevation changes.
+
+      // Opening climb
+      { type: "small", x: 15750, y: 351 },
+      { type: "small", x: 16100, y: 251 },
+      { type: "small", x: 16450, y: 151 },
+      { type: "small", x: 16800, y: 251 },
+      { type: "small", x: 17150, y: 351 },
+      { type: "small", x: 17500, y: 251 },
+      { type: "small", x: 17750, y: 151 },
+
+      // LONG JUMP 1
+      // Barely achievable: 850 horizontal units and a 500-unit drop.
+      { type: "small", x: 18000, y: 51 },
+      { type: "small", x: 18850, y: 551 },
+
+      // Recovery route
+      { type: "small", x: 19400, y: 451 },
+      { type: "small", x: 19800, y: 351 },
+      { type: "small", x: 20200, y: 251 },
+      { type: "small", x: 20600, y: 151 },
+
+      // LONG JUMP 2
+      // Same demanding distance, with another major elevation drop.
+      { type: "small", x: 21000, y: 51 },
+      { type: "small", x: 21850, y: 551 },
+
+      // Climb back up through staggered platforms
+      { type: "small", x: 22450, y: 451 },
+      { type: "small", x: 22850, y: 351 },
+      { type: "small", x: 23250, y: 251 },
+      { type: "small", x: 23650, y: 151 },
+      { type: "small", x: 24050, y: 251 },
+      { type: "small", x: 24450, y: 351 },
+      { type: "ground", x: 24850, y: 451 },
+
+      // Final stretch
+      { type: "small", x: 25400, y: 351 },
+      { type: "small", x: 25800, y: 251 },
+      { type: "small", x: 26200, y: 151 },
+      { type: "small", x: 26600, y: 251 },
+      { type: "small", x: 27000, y: 351 },
+      { type: "small", x: 27400, y: 251 },
+      { type: "small", x: 27800, y: 351 },
+      { type: "small", x: 28100, y: 251 },
+      { type: "small", x: 28400, y: 151 },
+
+      // FINAL LONG JUMP
+      // Same barely achievable 850-unit jump.
+      // The landing platform is distant and far below the launch point.
+      { type: "small", x: 28728, y: 51 },
+      { type: "small", x: 29578, y: 551 },
+
+      // Final approach to the finish
+      { type: "ground", x: 30178, y: 451 },
     ],
 
     decorativeBlocks: [
@@ -146,12 +204,13 @@ export const levels: LevelDefinition[] = [
       { x: 500, y: 375 },
     ],
   }),
+
   // LEVEL 2: SKYLINE SPRINT
   createLevel({
     id: "2",
     title: "Skyline Sprint",
     subtitle: "Across the rooftops",
-    difficulty: "Medium",
+    difficulty: "Easy",
     description:
       "Race across staggered rooftops, climb tall structures, and find your way through a winding skyline.",
     finishAt: 7200,
@@ -215,7 +274,7 @@ export const levels: LevelDefinition[] = [
     id: "3",
     title: "Pipeworks Pass",
     subtitle: "Up, over, and back again",
-    difficulty: "Hard",
+    difficulty: "Medium",
     description:
       "Navigate a maze of vertical shafts, awkward reversals, narrow landings, and difficult descents.",
     finishAt: 7400,

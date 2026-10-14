@@ -242,6 +242,16 @@ export default function GameCanvas({
     let disposed = false;
     let animationFrame = 0;
     let images: GameImages | null = null;
+
+    // Background music for the current level
+    const musicAudio = new Audio("/audio/mario_music.m4a");
+    musicAudio.loop = true;
+    musicAudio.preload = "auto";
+
+    // Jump sound effect
+    const jumpAudio = new Audio("/audio/mario_jump.m4a");
+    jumpAudio.preload = "auto";
+
     let player = new Player();
     let platforms: Platform[] = [];
     let genericObjects: GenericObject[] = [];
@@ -250,9 +260,49 @@ export default function GameCanvas({
     let currentStatus: GameStatus = "loading";
     const keys = keysRef.current;
 
+    // Start the music if the game is actively playing.
+    const tryStartMusic = () => {
+      if (currentStatus !== "playing" || !musicAudio.paused) return;
+
+      void musicAudio.play().catch(() => {
+        // Some browsers block autoplay until the player interacts.
+        // Keyboard and pointer listeners below retry playback.
+      });
+    };
+
+    // Stop and reset the jump sound so it never overlaps itself.
+    const stopJumpSound = () => {
+      jumpAudio.pause();
+      jumpAudio.currentTime = 0;
+    };
+
+    // Restart the jump sound every time Mario successfully jumps.
+    const playJumpSound = () => {
+      jumpAudio.pause();
+      jumpAudio.currentTime = 0;
+
+      void jumpAudio.play().catch(() => {});
+    };
+
     const changeStatus = (nextStatus: GameStatus) => {
       currentStatus = nextStatus;
+
       if (!disposed) setStatus(nextStatus);
+
+      if (nextStatus === "playing") {
+        // Start music on level entry and resume it after pausing.
+        tryStartMusic();
+      } else {
+        // Stop music and any remaining jump sound.
+        musicAudio.pause();
+        stopJumpSound();
+
+        // Death and victory reset the music for a future new run.
+        if (nextStatus === "lost" || nextStatus === "won") {
+          musicAudio.currentTime = 0;
+        }
+      }
+
       if (nextStatus !== "playing") {
         keys.left.pressed = false;
         keys.right.pressed = false;
@@ -291,6 +341,8 @@ export default function GameCanvas({
       if (currentStatus === "playing" && player.canJump) {
         player.velocity.y = -24;
         player.canJump = false;
+
+        playJumpSound();
       }
     };
 
@@ -317,6 +369,10 @@ export default function GameCanvas({
         "KeyW",
       ].includes(event.code);
       if (isGameKey && currentStatus === "playing") event.preventDefault();
+
+      // Retry music playback during keyboard interaction if needed.
+      tryStartMusic();
+
       if (currentStatus !== "playing") return;
 
       if (event.code === "ArrowLeft" || event.code === "KeyA")
@@ -339,9 +395,15 @@ export default function GameCanvas({
       keys.right.pressed = false;
     };
 
+    // Retry music playback during mouse or touch interaction.
+    const handlePointerDown = () => {
+      tryStartMusic();
+    };
+
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
     window.addEventListener("blur", handleBlur);
+    window.addEventListener("pointerdown", handlePointerDown);
 
     const animate = () => {
       animationFrame = window.requestAnimationFrame(animate);
@@ -448,6 +510,11 @@ export default function GameCanvas({
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("pointerdown", handlePointerDown);
+
+      // Stop audio when leaving the current level.
+      musicAudio.pause();
+      jumpAudio.pause();
       keys.left.pressed = false;
       keys.right.pressed = false;
       gameActionsRef.current = null;
