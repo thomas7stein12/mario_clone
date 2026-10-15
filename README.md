@@ -1,50 +1,45 @@
-# Mario Clone: Next.js integration files
+# 🍄 Mario Clone
 
-These are the files to copy into your existing `mario_clone` Next.js app. They do not replace your `package.json`, TypeScript config, or Tailwind setup.
+A small Mario-inspired platformer built as part of my first steps into game development. This project is a chance to learn how platform games work behind the scenes, experiment with movement and physics, and create my own levels and challenges.
 
-## 1. Copy the files
+## 🎮 About the Game
 
-Copy this folder's `app` directory into the root of your project, merging with the existing `app` directory and replacing `app/layout.tsx` and `app/page.tsx` when prompted.
+Inspired by classic side-scrolling platformers, **Mario Clone** is a small game focused on jumping, navigating platforms, and making it through increasingly challenging levels.
 
-Files included:
+The game features player movement, scrolling environments, platform collision detection, and custom level layouts with different heights, gaps, and landing areas. I'm also experimenting with mobile controls to make the game playable on smaller screens.
 
-- `app/layout.tsx` — site metadata and root layout
-- `app/page.tsx` — landing page
-- `app/levels/page.tsx` — level picker
-- `app/game/level-data.ts` — all three platform layouts
-- `app/game/[levelId]/page.tsx` — route for a selected level
-- `app/game/[levelId]/GameCanvas.tsx` — canvas game, physics, keyboard/touch controls, pause, restart, win/loss states
+This is an ongoing learning project, so I'll continue experimenting with new level designs, improving the gameplay, and adding features as I develop my game development skills.
 
-## 2. Check the image filenames
+## 🛠️ What I'm Learning
 
-The code expects these files directly inside `public/` (not inside `public/imgs/`):
+Through this project, I'm exploring the fundamentals of game development, including:
 
-```text
-public/background.png
-public/hills.png
-public/platform.png
-public/platformSmallTall.png
-public/mario-left-1.png
-public/mario-left-2.png
-public/mario-right-1.png
-public/mario-right-2.png
-public/mario-stationary.png
-```
+- Player movement, jumping, and keyboard input
+- Game loops, animation, and canvas rendering
+- Collision detection and platform physics
+- Camera scrolling and longer game levels
+- Level design, difficulty, and increasingly challenging jumps
+- Responsive layouts and touch controls for mobile devices
 
-The paths are case-sensitive on many deployment environments. Each filename above must match exactly.
+## 🚀 Future Improvements
 
-## 3. Run it
+Some things I'd like to explore as the project develops:
 
-From the project folder:
+- Adding more unique levels with different platform layouts
+- Improving movement, jumping, and collision mechanics
+- Adding animations, sound effects, and visual polish
+- Improving the mobile gaming experience
+- Adding a scoring system and tracking player progress
+- Experimenting with new mechanics and challenges
 
-```bash
-npm run dev
-```
+## 📚 Why I Built This
 
-Open `http://localhost:3000`. The landing page leads to `/levels`, and each level opens at `/game/1`, `/game/2`, or `/game/3`.
+Most of my development experience so far has been focused on web development, using technologies like JavaScript, TypeScript, React, and Next.js. I wanted to try something different and start learning how to build games rather than just traditional websites and applications.
 
-No extra npm packages are required. Keep your existing `app/globals.css` and `package.json` as they are.
+Building this project has given me an opportunity to experiment with concepts like animation loops, physics, collision detection, and level design while still using technologies I'm familiar with.
 
-## Adding another level
+It's a fun way to challenge myself, learn by doing, and explore a different side of software development.
 
-Add another object to the `levels` array in `app/game/level-data.ts`. Give it a unique `id`, title, description, `finishAt` distance, and a `platforms` array. Each platform uses `type: "ground"` for `platform.png` or `type: "small"` for `platformSmallTall.png`. The level picker and static game routes are generated from this array.
+---
+
+Thanks for checking out Mario Clone! 🍄
